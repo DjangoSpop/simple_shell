@@ -12,7 +12,13 @@ if [ ! -f "$filename" ]; then
     exit 1
 fi
 
-# Read each line from the file and execute the commands
-while IFS= read -r command; do
-    eval "$command"
+# Read each line from the file and execute non-comment lines
+while IFS= read -r line; do
+    # Remove leading and trailing whitespace from the line
+    trimmed_line="$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+
+    # Skip empty lines and lines starting with #
+    if [ -n "$trimmed_line" ] && [ "${trimmed_line:0:1}" != "#" ]; then
+        eval "$trimmed_line"
+    fi
 done < "$filename"
